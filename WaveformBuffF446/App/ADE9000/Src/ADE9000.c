@@ -1,0 +1,108 @@
+/* Includes ------------------------------------------------------------------*/
+#include "ADE9000.h"
+#include "main.h"
+
+void ADE9000_Pins(void)
+{
+	HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_SET);
+}
+
+void ADE9000_Setup(void)
+{
+	// Configur��o do ADE9000
+	ADE9000SPI_Write16(ADDR_PGA_GAIN,ADE9000_PGA_GAIN);
+	ADE9000SPI_Write32(ADDR_CONFIG0,ADE9000_CONFIG0);
+	ADE9000SPI_Write16(ADDR_CONFIG1,ADE9000_CONFIG1);
+	ADE9000SPI_Write16(ADDR_CONFIG2,ADE9000_CONFIG2);
+	ADE9000SPI_Write16(ADDR_CONFIG3,ADE9000_CONFIG3);
+	ADE9000SPI_Write16(ADDR_ACCMODE,ADE9000_ACCMODE);
+	ADE9000SPI_Write16(ADDR_TEMP_CFG,ADE9000_TEMP_CFG);
+	ADE9000SPI_Write16(ADDR_ZX_LP_SEL,ADE9000_ZX_LP_SEL);
+	ADE9000SPI_Write32(ADDR_MASK0,ADE9000_MASK0);
+	ADE9000SPI_Write32(ADDR_MASK1,ADE9000_MASK1);
+	ADE9000SPI_Write32(ADDR_EVENT_MASK,ADE9000_EVENT_MASK);
+	ADE9000SPI_Write32(ADDR_VLEVEL,ADE9000_VLEVEL);
+	ADE9000SPI_Write16(ADDR_EGY_TIME,ADE9000_EGY_TIME);
+	ADE9000SPI_Write16(ADDR_EP_CFG,ADE9000_EP_CFG);
+
+	// Limites do modulo de qualidade
+	ADE9000SPI_Write32(ADDR_DIP_LVL, DIP_LVL);
+	ADE9000SPI_Write16(ADDR_DIP_CYC, DIP_CYC);
+	ADE9000SPI_Write32(ADDR_SWELL_LVL, SWELL_LVL);
+	ADE9000SPI_Write16(ADDR_SWELL_CYC, SWELL_CYC);
+	ADE9000SPI_Write32(ADDR_OILVL, OI_LVL);
+	ADE9000SPI_Write32(ADDR_ACT_NL_LVL, ACT_NL_LVL);
+	ADE9000SPI_Write32(ADDR_REACT_NL_LVL, REACT_NL_LVL);
+	ADE9000SPI_Write32(ADDR_APP_NL_LVL, APP_NL_LVL);
+
+	// Liga DSP do ADE9000
+	ADE9000SPI_Write16(ADDR_RUN,ADE9000_RUN_ON);
+
+	// Limpa todas as interrup��es
+	ADE9000SPI_Write32(ADDR_STATUS0, 0xFFFFFFFF);
+	ADE9000SPI_Write32(ADDR_STATUS1, 0xFFFFFFFF);
+}
+
+void ADE9000_Calibration(void)
+{
+	ADE9000SPI_Write32(ADDR_AIGAIN, AIGAIN);
+	ADE9000SPI_Write32(ADDR_BIGAIN, BIGAIN);
+	ADE9000SPI_Write32(ADDR_CIGAIN, CIGAIN);
+	ADE9000SPI_Write32(ADDR_AVGAIN, AVGAIN);
+	ADE9000SPI_Write32(ADDR_BVGAIN, BVGAIN);
+	ADE9000SPI_Write32(ADDR_CVGAIN, CVGAIN);
+	ADE9000SPI_Write32(ADDR_AIRMSOS, AIRMSOS);
+	ADE9000SPI_Write32(ADDR_BIRMSOS, BIRMSOS);
+	ADE9000SPI_Write32(ADDR_CIRMSOS, CIRMSOS);
+	ADE9000SPI_Write32(ADDR_AVRMSOS, AVRMSOS);
+	ADE9000SPI_Write32(ADDR_BVRMSOS, BVRMSOS);
+	ADE9000SPI_Write32(ADDR_CVRMSOS, CVRMSOS);
+	ADE9000SPI_Write32(ADDR_APHCAL0, APHCAL0);
+	ADE9000SPI_Write32(ADDR_BPHCAL0, BPHCAL0);
+	ADE9000SPI_Write32(ADDR_CPHCAL0, CPHCAL0);
+
+	ADE9000SPI_Write32(ADDR_APGAIN, APGAIN);
+	ADE9000SPI_Write32(ADDR_BPGAIN, BPGAIN);
+	ADE9000SPI_Write32(ADDR_CPGAIN, CPGAIN);
+	ADE9000SPI_Write32(ADDR_AWATTOS, AWATTOS);
+	ADE9000SPI_Write32(ADDR_BWATTOS, BWATTOS);
+	ADE9000SPI_Write32(ADDR_CWATTOS, CWATTOS);
+	ADE9000SPI_Write32(ADDR_AVAROS, AVAROS);
+	ADE9000SPI_Write32(ADDR_BVAROS, BVAROS);
+	ADE9000SPI_Write32(ADDR_CVAROS, CVAROS);
+}
+
+
+void ADE9000_Init()
+{
+	ADE9000_Pins();
+	ADE9000_Setup();
+	ADE9000_Calibration();
+	ADE9000_Init_Trigger_Detector();
+}
+
+void ADE9000_Measurements(ADE9000_EnergyMeasurements *Data)
+{
+	ADE9000API_ReadActivePowerRegsValues(&(Data->ActivePower));
+	ADE9000API_ReadReactivePowerRegsValues(&(Data->ReactivePower));
+	ADE9000API_ReadApparentPowerRegsValues(&(Data->ApparentPower));
+	ADE9000API_ReadActiveEnergyRegsValues(&(Data->ActiveEnergy));
+	ADE9000API_ReadReactiveEnergyRegsValues(&(Data->ReactiveEnergy));
+	ADE9000API_ReadApparentEnergyRegsValues(&(Data->ApparentEnergy));
+	ADE9000API_ReadVoltageRMSRegsValues(&(Data->VoltageRMS));
+	ADE9000API_ReadCurrentRMSRegsValues(&(Data->CurrentRMS));
+	ADE9000API_ReadFundActivePowerRegsValues(&(Data->FundActivePower));
+	ADE9000API_ReadFundReactivePowerRegsValues(&(Data->FundReactivePower));
+	ADE9000API_ReadFundApparentPowerRegsValues(&(Data->FundApparentPower));
+	ADE9000API_ReadFundActiveEnergyRegsValues(&(Data->FundActiveEnergy));
+	ADE9000API_ReadFundReactiveEnergyRegsValues(&(Data->FundReactiveEnergy));
+	ADE9000API_ReadFundApparentEnergyRegsValues(&(Data->FundApparentEnergy));
+	ADE9000API_ReadFundVoltageRMSRegsValues(&(Data->FundVoltageRMS));
+	ADE9000API_ReadFundCurrentRMSRegsValues(&(Data->FundCurrentRMS));
+	ADE9000API_ReadVoltageTHDRegsnValues(&(Data->VoltageTHD));
+	ADE9000API_ReadCurrentTHDRegsnValues(&(Data->CurrentTHD));
+	ADE9000API_ReadPowerFactorRegsnValues(&(Data->PowerFactor));
+	ADE9000API_ReadPeriodRegsnValues(&(Data->Period));
+	ADE9000API_ReadAngleRegsnValues(&(Data->Angle));
+	ADE9000API_ReadPowerQuality(&(Data->Quality));
+}

@@ -1,0 +1,3 @@
+../App/enernet.c:12:6:App_loop	1
+../App/enernet.c:23:6:MainBuild_InitiateApp	2
+../App/enernet.c:51:6:stateMachine	8

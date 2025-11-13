@@ -1,0 +1,7 @@
+../App/Support/calibration.c:30:6:calibracaoGanhoRMS	1
+../App/Support/calibration.c:81:6:calibracaoOffsetRMS	1
+../App/Support/calibration.c:123:6:calibracaoFase	1
+../App/Support/calibration.c:169:6:calibracaoPotencia	1
+../App/Support/calibration.c:197:6:calibrarOffsetPotenciaAtiva	1
+../App/Support/calibration.c:225:6:calibrarOffsetPotenciaReativa	1
+../App/Support/calibration.c:249:6:configuracaoRegistradores	1

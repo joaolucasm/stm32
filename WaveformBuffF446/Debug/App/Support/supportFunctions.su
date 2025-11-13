@@ -1,0 +1,8 @@
+../App/Support/supportFunctions.c:14:6:AppMainBuild_General_InitiateVarStateMachine	16	static
+../App/Support/supportFunctions.c:41:6:AppMainBuild_AppEnernet_HardwareInitiate	16	static
+../App/Support/supportFunctions.c:62:6:AppMainBuild_General_TakeMeasurement	24	static
+../App/Support/supportFunctions.c:143:5:AppMainBuild_AppEnernet_TakeElectricalMeasurement	16	static
+../App/Support/supportFunctions.c:183:6:AppMainBuild_AppEnernet_CalculateStatisticalValues	184	static
+../App/Support/supportFunctions.c:470:6:AppMainBuild_General_AppRunning	16	static
+../App/Support/supportFunctions.c:499:6:AppMainBuild_Print	16	static
+../App/Support/supportFunctions.c:535:6:AppMainBuild_Print_Display	304	static

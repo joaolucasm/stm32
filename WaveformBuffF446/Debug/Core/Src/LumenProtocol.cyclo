@@ -1,0 +1,15 @@
+../Core/Src/LumenProtocol.c:179:10:lumen_write	12
+../Core/Src/LumenProtocol.c:303:10:lumen_write_variable_list	18
+../Core/Src/LumenProtocol.c:449:10:lumen_write_packet	15
+../Core/Src/LumenProtocol.c:527:6:ParsePayload	6
+../Core/Src/LumenProtocol.c:566:6:Pack	12
+../Core/Src/LumenProtocol.c:618:10:lumen_available	8
+../Core/Src/LumenProtocol.c:686:17:lumen_get_first_packet	4
+../Core/Src/LumenProtocol.c:703:6:lumen_request	8
+../Core/Src/LumenProtocol.c:790:6:lumen_read	5
+../Core/Src/LumenProtocol.c:853:13:lumen_project_update_word_checker	4
+../Core/Src/LumenProtocol.c:870:20:lumen_project_update_calculate_crc	4
+../Core/Src/LumenProtocol.c:898:13:lumen_project_update_start	5
+../Core/Src/LumenProtocol.c:922:6:lumen_project_update_send_data	21
+../Core/Src/LumenProtocol.c:1041:6:lumen_project_update_tick	1
+../Core/Src/LumenProtocol.c:1045:6:lumen_project_update_finish	1
