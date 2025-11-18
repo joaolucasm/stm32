@@ -9,7 +9,6 @@ lumen_packet_t *currentPacket;
 void mainPrint_Waveform()
 {
 	bool teste = false;
-	bool firstTime = true;
 	while(1)
 	{
 		while(lumen_available() > 0 )
@@ -31,12 +30,6 @@ void mainPrint_Waveform()
 						break;
 				}
 			}
-		}
-
-		if(teste && firstTime)
-		{
-			ADE9000_Init();
-			firstTime = false;
 		}
 
 		if(teste)
@@ -97,7 +90,7 @@ void getRealValues(int32_t raw32, int word_in_sample, int selected)
 		WaveformSample_t sampleToSend;
 		osStatus_t status;
 		double real_value_f = 0.0;
-		double pin_voltage = ((double)raw32 / ADE9000_DSP_FS_DECIMAL) * ADE9000_PIN_FS_VOLTAGE;
+		double pin_voltage = ((double)raw32 / DSP_FS_DECIMAL) * PIN_FS_VOLTAGE;
 
 		if(selected == address_getCurrentValues)
 		{
