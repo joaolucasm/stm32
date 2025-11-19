@@ -11,7 +11,6 @@ void UartTransmit(void)
 {
 	WaveformSample_t receivedSample;
 	osStatus_t status;
-	//(void)argument;
 
 	while(1)
 	{

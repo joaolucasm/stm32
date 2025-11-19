@@ -57,13 +57,6 @@ const osThreadAttr_t enernetTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
-/* Definitions for waveformTask */
-osThreadId_t waveformTaskHandle;
-const osThreadAttr_t waveformTask_attributes = {
-  .name = "waveformTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
 /* Definitions for uartTransmitTas */
 osThreadId_t uartTransmitTasHandle;
 const osThreadAttr_t uartTransmitTas_attributes = {
@@ -95,7 +88,6 @@ static void MX_USART2_UART_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART6_UART_Init(void);
 void StartEnernetTask(void *argument);
-void StartWaveformTask(void *argument);
 void StartUartTransmitTask(void *argument);
 
 /* USER CODE BEGIN PFP */
@@ -215,7 +207,7 @@ int main(void)
 
   /* Create the queue(s) */
   /* creation of xWaveformQueue */
-  xWaveformQueueHandle = osMessageQueueNew (512, 8, &xWaveformQueue_attributes);
+  xWaveformQueueHandle = osMessageQueueNew (300, 8, &xWaveformQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -224,9 +216,6 @@ int main(void)
   /* Create the thread(s) */
   /* creation of enernetTask */
   enernetTaskHandle = osThreadNew(StartEnernetTask, NULL, &enernetTask_attributes);
-
-  /* creation of waveformTask */
-  waveformTaskHandle = osThreadNew(StartWaveformTask, NULL, &waveformTask_attributes);
 
   /* creation of uartTransmitTas */
   uartTransmitTasHandle = osThreadNew(StartUartTransmitTask, NULL, &uartTransmitTas_attributes);
@@ -267,7 +256,7 @@ void SystemClock_Config(void)
   /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
@@ -278,7 +267,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
   RCC_OscInitStruct.PLL.PLLM = 8;
-  RCC_OscInitStruct.PLL.PLLN = 150;
+  RCC_OscInitStruct.PLL.PLLN = 100;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
   RCC_OscInitStruct.PLL.PLLR = 2;
@@ -296,7 +285,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -325,7 +314,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -449,12 +438,6 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, LED_Pin|CS_SPI1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : IRQ1_ADE_Pin */
-  GPIO_InitStruct.Pin = IRQ1_ADE_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(IRQ1_ADE_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : LED_Pin CS_SPI1_Pin */
   GPIO_InitStruct.Pin = LED_Pin|CS_SPI1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -471,9 +454,6 @@ static void MX_GPIO_Init(void)
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 
@@ -495,34 +475,15 @@ void StartEnernetTask(void *argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
+  ADE9000_Init();
   for(;;)
   {
 	//App_loop();
 	//ADE9000_Trigger_Detector();
+    mainPrint_Waveform();
     osDelay(1);
   }
   /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartWaveformTask */
-/**
-* @brief Function implementing the waveformTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartWaveformTask */
-void StartWaveformTask(void *argument)
-{
-  /* USER CODE BEGIN StartWaveformTask */
-  //ADE9000_Init();
-  /* Infinite loop */
-  for(;;)
-  {
-	//ADE9000_Main_WFB();
-	mainPrint_Waveform();
-    osDelay(1);
-  }
-  /* USER CODE END StartWaveformTask */
 }
 
 /* USER CODE BEGIN Header_StartUartTransmitTask */

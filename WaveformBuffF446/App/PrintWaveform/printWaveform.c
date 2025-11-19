@@ -35,6 +35,9 @@ void mainPrint_Waveform()
 		if(teste)
 		{
 			ADE9000_Trigger_Detector();
+			//printf("%"PRId32"\n\r",ADE9000SPI_Read32(ADDR_AVRMSONE));
+			//printf("%"PRId32"\n\r",ADE9000SPI_Read32(ADDR_BVRMSONE));
+			//printf("%"PRId32"\n\r",ADE9000SPI_Read32(ADDR_CVRMSONE));
 		}
 		osDelay(1);
 	}

@@ -72,13 +72,11 @@ void ADE9000_Calibration(void)
 	ADE9000SPI_Write32(ADDR_CVAROS, CVAROS);
 }
 
-
 void ADE9000_Init()
 {
 	ADE9000_Pins();
 	ADE9000_Setup();
 	ADE9000_Calibration();
-	ADE9000_Init_Trigger_Detector();
 }
 
 void ADE9000_Measurements(ADE9000_EnergyMeasurements *Data)

@@ -5,20 +5,24 @@ volatile bool flagAconteceuDistorcao = false; //Flag para indicar que aconteceu 
 volatile bool flagDMATransferPageComplete = false; //Flag para quando uma transferência completa de página for feita via DMA
 volatile bool flagDMATransferBufferComplete = false; //Flag para quando uma transferência completa do buffer for feita via DMA
 
-uint16_t trigger_address = 0x0000;
 uint16_t dma_rx_buffer[TOTAL_16BIT_BUFFER] = {0};
-uint16_t variationEvent = 0x0000;
 
 extern osMutexId_t spiMutexHandle;
 extern osMessageQueueId_t xWaveformQueueHandle;
 volatile SpiDMAReadState_t spiReadState = SPI_STATE_IDLE;
-volatile static DetectorState_t detectorState = STATE_IDLE;
+volatile static DetectorState_t detectorState = STATE_INIT;
 
 
 void ADE9000_Trigger_Detector()
 {
+	uint16_t triggerAddress = 0x0000;
+	uint16_t variationEvent = 0x0000;
 	switch(detectorState)
 	{
+		case STATE_INIT:
+			ADE9000_Init_WFB();
+			detectorState = STATE_IDLE;
+		break;
 		case STATE_IDLE:
 			if(flagAconteceuDistorcao)
 			{
@@ -27,34 +31,32 @@ void ADE9000_Trigger_Detector()
 			}
 		break;
 		case STATE_CHECK_STATUS:
-
 			uint32_t status1 = ADE9000SPI_Read32(ADDR_STATUS1);
 
-			if(status1 & STATUS1_DIPA_BIT){variationEvent |= (1 << 1);printf("DIP no canal A\n\r");} //DIP de tensao na fase A
-			if(status1 & STATUS1_DIPB_BIT){variationEvent |= (1 << 2);printf("DIP no canal B\n\r");} //DIP de tensao na fase B
-			if(status1 & STATUS1_DIPC_BIT){variationEvent |= (1 << 3);printf("DIP no canal C\n\r");} //DIP de tensao na fase C
-			if(status1 & STATUS1_SWELLA_BIT){variationEvent |= (1 << 4);printf("SWELL no canal A\n\r");} //SWELL de tensao na fase A
-			if(status1 & STATUS1_SWELLB_BIT){variationEvent |= (1 << 5);printf("SWELL no canal B\n\r");} //SWELL de tensao na fase B
-			if(status1 & STATUS1_SWELLC_BIT){variationEvent |= (1 << 6);printf("SWELL no canal C\n\r");} //SWELL de tensao na fase C
+			if(status1 & STATUS1_DIPA_BIT){variationEvent |= (1 << 0);} //DIP de tensao na fase A
+			if(status1 & STATUS1_DIPB_BIT){variationEvent |= (1 << 1);} //DIP de tensao na fase B
+			if(status1 & STATUS1_DIPC_BIT){variationEvent |= (1 << 2);} //DIP de tensao na fase C
+			if(status1 & STATUS1_SWELLA_BIT){variationEvent |= (1 << 3);} //SWELL de tensao na fase A
+			if(status1 & STATUS1_SWELLB_BIT){variationEvent |= (1 << 4);} //SWELL de tensao na fase B
+			if(status1 & STATUS1_SWELLC_BIT){variationEvent |= (1 << 5);} //SWELL de tensao na fase C
 			if(status1 & STATUS1_OI_BIT) //Aconteceu um overcurrent
 			{
 				uint16_t oistatus = ADE9000SPI_Read16(ADDR_OISTATUS);
-				if(oistatus & OISTATUS_IA_BIT){variationEvent |= (1 << 7);printf("OI no canal A\n\r");}
-				if(oistatus & OISTATUS_IB_BIT){variationEvent |= (1 << 8);printf("OI no canal B\n\r");}
-				if(oistatus & OISTATUS_IC_BIT){variationEvent |= (1 << 9);printf("OI no canal C\n\r");}
+				if(oistatus & OISTATUS_IA_BIT){variationEvent |= (1 << 6);}
+				if(oistatus & OISTATUS_IB_BIT){variationEvent |= (1 << 7);}
+				if(oistatus & OISTATUS_IC_BIT){variationEvent |= (1 << 8);}
 			}
 
 			uint16_t wfb_tgr_stat = ADE9000SPI_Read16(ADDR_WFB_TRG_STAT);
-			trigger_address = (wfb_tgr_stat & 0x7FF); //Operação de máscara apenas para filtrar os bits de WFB_TRG_ADDR
+			triggerAddress = (wfb_tgr_stat & 0x07F8); //Operação de máscara apenas para filtrar os bits de WFB_TRG_ADDR
 
 			ADE9000SPI_Write32(ADDR_STATUS1,0xFFFFFFFF);//Dentro de status 1 eu reseto todos
 
 			osMutexAcquire(spiMutexHandle, osWaitForever);
+
 			spiReadState = SPI_STATE_READING_FULL_BUFFER;
 			ADE9000SPI_BurstRead_DMA(ADDR_WFB_BASE, TOTAL_16BIT_BUFFER, dma_rx_buffer);
 			detectorState = STATE_WAITING_FOR_DMA;
-
-			//detectorState = STATE_IDLE;
 		break;
 		case STATE_WAITING_FOR_DMA:
 			if(flagDMATransferBufferComplete)
@@ -65,35 +67,40 @@ void ADE9000_Trigger_Detector()
 			}
 			break;
 		case STATE_PROCESSING:
-			Analisar_Forma_Onda_Capturada(variationEvent,trigger_address);
+			Analisar_Forma_Onda_Capturada(variationEvent,triggerAddress);
 
-			//ADE9000SPI_Write16(ADDR_WFB_CFG, ADE9000_WFB_CFG_STOP);
+			ADE9000SPI_Write16(ADDR_WFB_CFG, ADE9000_WFB_CFG_STOP);
 
-			//ADE9000SPI_Write16(ADDR_WFB_CFG, ADE9000_WFB_CFG_START);
+			ADE9000SPI_Write16(ADDR_WFB_CFG, ADE9000_WFB_CFG_START);
 
 			detectorState = STATE_IDLE;
 			break;
 	}
 }
 
-void ADE9000_Init_Trigger_Detector()
+void ADE9000_Init_WFB()
 {
-	ADE9000SPI_Write16(ADDR_WFB_CFG,ADE9000_WFB_CFG_CONFIGURATION);
+	ADE9000SPI_Write32(ADDR_STATUS0,0xFFFFFFFF);
+	ADE9000SPI_Write16(ADDR_WFB_CFG,0x0000);
+	ADE9000SPI_Write16(ADDR_WFB_PG_IRQEN,0x0000);
 
-	ADE9000SPI_Write16(ADDR_WFB_TRG_CFG,ADE9000_16BIT_BLANK);
+	osDelay(1);
 
-	ADE9000SPI_Write16(ADDR_WFB_PG_IRQEN,ADE9000_WFB_PQ_IRQEN);
+	ADE9000SPI_Write16(ADDR_WFB_CFG,ADE9000_WFB_CFG_CONFIGURATION); //Configurando o WFB
+	ADE9000SPI_Write16(ADDR_WFB_PG_IRQEN,ADE9000_WFB_PQ_IRQEN); //Habilita interrupção para quando a página 7 (metade) do buffer encher
+	ADE9000SPI_Write16(ADDR_WFB_CFG,ADE9000_WFB_CFG_START); //SOMENTE nesse ponto do código é iniciado a captura de valores pelo WFB
 
-	ADE9000SPI_Write16(ADDR_WFB_CFG,ADE9000_WFB_CFG_START); //SOMENTE nesse ponto do código é inicado a captura de valores pelo WFB
-
-	while(flagBufferCheio != true){osDelay(1);} //Aqui é esperado a interrupção setada anteriormente, avisando que o buffer está cheio
+	while(!flagBufferCheio)//Aqui é esperado a interrupção setada anteriormente, avisando que o buffer está cheio
+		{osDelay(1);}
 
 	flagBufferCheio = false;
 
-	//ADE9000SPI_Write32(ADDR_STATUS0,STATUS0_PAGE_FULL);
-	ADE9000SPI_Write16(ADDR_WFB_PG_IRQEN, ADE9000_16BIT_BLANK);
+	ADE9000SPI_Write16(ADDR_WFB_TRG_CFG, ADE9000_WFB_TRG_CFG);//Aqui habilita todas as interrupções que realmente interessam (OI/SWELL/DIP)
 
-	ADE9000SPI_Write16(ADDR_WFB_TRG_CFG, ADE9000_WFB_TRG_CFG); //Aqui habilita todas as interrupções que realmente interessam
+	osDelay(1);
+
+	ADE9000SPI_Write32(ADDR_STATUS0,0xFFFFFFFF);
+	ADE9000SPI_Write16(ADDR_WFB_PG_IRQEN, 0x0000);
 }
 
 void Analisar_Forma_Onda_Capturada(uint16_t eventos,uint16_t trigger_addr_capturado)
@@ -103,14 +110,14 @@ void Analisar_Forma_Onda_Capturada(uint16_t eventos,uint16_t trigger_addr_captur
 		if((i%8) == 1) // O filtro "if" SÓ deixa passar i = 1, 9, 17, 25, 33... (canal VA)
 		{
 			getRealValues2(Sample_Linear_Remontado(i,trigger_addr_capturado), i%8);
-			//osDelay(1);
+			osDelay(1);
 		}
 	}
 }
 
 int32_t Sample_Linear_Remontado(uint16_t index_linear, uint16_t trigger_addr_capturado)
 {
-	uint16_t indice_raw = (index_linear + trigger_addr_capturado - 1024 + 2048) % 2048;
+	uint16_t indice_raw = (index_linear + trigger_addr_capturado - 1024 + 1 + 2048) % 2049;
 
 	uint16_t high_indice = indice_raw * 2;
 	uint16_t low_indice = high_indice + 1;
@@ -125,7 +132,7 @@ void getRealValues2(int32_t raw32, int word_in_sample)
 		WaveformSample_t sampleToSend;
 		//osStatus_t status;
 		double real_value_f = 0.0;
-		double pin_voltage = ((double)raw32 / ADE9000_DSP_FS_DECIMAL) * ADE9000_PIN_FS_VOLTAGE;
+		double pin_voltage = ((double)raw32 / DSP_FS_DECIMAL) * PIN_FS_VOLTAGE;
 
 		if((word_in_sample % 2) == 0)//valores de corrente
 			real_value_f = pin_voltage * FATOR_DIVISOR_CORRENTE;
@@ -149,8 +156,6 @@ void getRealValues2(int32_t raw32, int word_in_sample)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	uint32_t bits_to_clear = 0x00000000;
-
 	if(GPIO_Pin == IRQ0_ADE_Pin)
 	{
 		uint32_t status0 = ADE9000SPI_Read32(ADDR_STATUS0);
@@ -158,17 +163,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		if((status0 & STATUS0_PAGE_FULL))
 		{
 			flagBufferCheio = true;
-			bits_to_clear |= STATUS0_PAGE_FULL;
+			ADE9000SPI_Write32(ADDR_STATUS0, STATUS0_PAGE_FULL);
 		}
-
 		if(status0 & STATUS0_WFB_TRIG_IRQ)
 		{
 			flagAconteceuDistorcao = true;
-			bits_to_clear |= STATUS0_WFB_TRIG_IRQ;
+			ADE9000SPI_Write32(ADDR_STATUS0, STATUS0_WFB_TRIG_IRQ);
 		}
-
-		if(bits_to_clear > 0)
-			ADE9000SPI_Write32(ADDR_STATUS0, bits_to_clear);
 	}
 }
 
