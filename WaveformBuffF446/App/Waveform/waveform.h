@@ -8,11 +8,9 @@
 //================================================================================================================================================
 #include <stdio.h>
 #include <stdint.h>
-#include "LumenProtocol.h"
 #include "calibration.h"
 #include "ADE9000.h"
 #include "main.h"
-
 //================================================================================================================================================
 //
 //																	Defines
@@ -22,8 +20,6 @@
 #define PAGE_WORDS     						128     					/*Tamanho da página dentro do waveform buffer*/
 #define TOTAL_16BIT_WORDS					(PAGE_WORDS * 2)			/*Quantidade de meias palavras dentro de uma página*/
 #define TOTAL_SAMPLES						256
-#define OFFSET_PALAVRAS						1024
-#define NUM_PAGES							16							/*Quantidade de páginas dentro do waveform buffer*/
 #define BUFFER_TAM							2048						/*Tamanho total do waveform buffer*/
 #define TOTAL_16BIT_BUFFER					(BUFFER_TAM * 2)			/*Tamanho total do buffer em 16 bits*/
 #define DSP_FS_DECIMAL 						74532013.0
@@ -48,6 +44,27 @@
 #define ADDR_WFB_BASE						0x00000800		 			/*Start of Waveform Buffer*/
 #define ADDR_WFB_TOP						0x00000FFF					/*End of Waveform Buffer*/
 
+// 1. Buffer de Transporte (DMA)
+#define DMA_SAMPLE_SETS						64                          /*Leitura de 64 amostras do ADE por vez*/
+#define DMA_CHANNELS_SPI					8							/*Canais para leitura (IA,VA,IB,VB,IC,VC,IN,Spare)*/
+#define DMA_BUFFER_SIZE_16_BITS				(DMA_SAMPLE_SETS * DMA_CHANNELS_SPI * 2) /*Tamanho do buffer que vai comportar os dados que serão trazidos do ADE, multiplicado por 2 pois será de 16 bits*/
+
+// 2. Decimação
+#define DECIMATION_FACTOR					6							/*Para pegar 500ms de onda com 20Kbytes, onde faremos 8000Hz / 6 = 1333.33Hz*/
+
+// 3. Buffer Circular de Histórico (RAM STM32)
+// RAM Usada: 700 * 28 bytes = 19.600 bytes (~19.1 KB)
+// Tempo Total: 700 / 1333.33 = ~525 ms
+#define HISTORY_BUFFER_SIZE					700
+#define HISTORY_CHANNELS					7							/*IA,VA,IB,VB,IC,VC,IN*/
+
+
+
+#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
+#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO  * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
+
+#define ADE_GET_VALUE(ade_union) \
+	( (int32_t)( ((uint32_t)(ade_union).parts.High << 16) | (ade_union).parts.Low ) )
 //================================================================================================================================================
 //
 //												Definições das estruturas de dados utilizadas
@@ -73,6 +90,38 @@ typedef struct{
 	uint8_t channel;
 }WaveformSample_t;
 
+#pragma pack(push,1)
+typedef struct{
+	int32_t IA;
+	int32_t VA;
+	int32_t IB;
+	int32_t VB;
+	int32_t IC;
+	int32_t VC;
+	int32_t IN;
+	int32_t Spare;
+}AdeRawSample_t;
+#pragma pack(pop)
+
+typedef struct{
+	int32_t IA;
+	int32_t VA;
+	int32_t IB;
+	int32_t VB;
+	int32_t IC;
+	int32_t VC;
+	int32_t IN;
+}ProcessedSample_t;
+
+extern uint16_t dma_rx_buffer[DMA_BUFFER_SIZE_16_BITS];
+
+extern ProcessedSample_t history_buffer[HISTORY_BUFFER_SIZE];
+
+extern volatile uint16_t history_head;
+
+extern volatile bool flag_dma_half;
+extern volatile bool flag_dma_cplt;
+
 //================================================================================================================================================
 //
 //													Definições das funções utilizadas
@@ -80,9 +129,9 @@ typedef struct{
 //================================================================================================================================================
 void ADE9000_Init_WFB();
 void ADE9000_Trigger_Detector();
-void Analisar_Forma_Onda_Capturada(uint16_t eventos,uint16_t trigger_addr_capturado);
-void getRealValues2(int32_t raw32, int word_in_sample);
-int32_t Sample_Linear_Remontado(uint16_t index_linear, uint16_t trigger_addr_capturado);
+void Waveform_Process_Loop(void);
+
+
 
 void UartTransmit(void);
 

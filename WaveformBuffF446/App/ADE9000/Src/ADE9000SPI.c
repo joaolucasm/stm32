@@ -5,7 +5,7 @@
 
 extern SPI_HandleTypeDef hspi1;
 extern osMutexId_t spiMutexHandle;
-uint16_t dma_tx_buffer[TOTAL_16BIT_BUFFER];
+uint16_t dma_tx_buffer[TOTAL_16BIT_BUFFER] = {0};
 
 
 void ADE9000SPI_Write16(uint16_t Address, uint16_t Data)
@@ -107,10 +107,9 @@ void ADE9000SPI_BurstRead_DMA(uint16_t startAddr, int nWords,uint16_t *dma_rx_bu
 {
 	startAddr = (((startAddr <<4) & 0xFFF0) + 8);
 	uint16_t txCommand = startAddr;
-	uint16_t rxDummy;
+	uint16_t rxDummy = 0x0000;
 
-	for(int i = 0; i < nWords;i++)
-	dma_tx_buffer[i] = 0x0000;
+	memset(dma_tx_buffer,0,sizeof(dma_tx_buffer));
 
 	HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_RESET);
 	HAL_SPI_TransmitReceive(&hspi1, (uint8_t*)&txCommand, (uint8_t*)&rxDummy, 1, HAL_MAX_DELAY);

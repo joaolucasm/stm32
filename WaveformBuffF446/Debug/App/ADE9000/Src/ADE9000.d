@@ -35,8 +35,7 @@ App/ADE9000/Src/ADE9000.o: ../App/ADE9000/Src/ADE9000.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../App/enernet.h ../App/app_config.h ../App/Support/calibration.h \
  ../Core/Inc/LumenProtocol.h ../Core/Inc/LumenProtocolConfiguration.h \
- ../App/Waveform/waveform.h ../Core/Inc/LumenProtocol.h \
- ../App/PrintWaveform/printWaveform.h
+ ../App/Waveform/waveform.h ../App/PrintWaveform/printWaveform.h
 ../App/ADE9000/Inc/ADE9000.h:
 ../App/ADE9000/Inc/ADE9000API.h:
 ../App/ADE9000/Inc/ADE9000MAP.h:
@@ -80,5 +79,4 @@ App/ADE9000/Src/ADE9000.o: ../App/ADE9000/Src/ADE9000.c \
 ../Core/Inc/LumenProtocol.h:
 ../Core/Inc/LumenProtocolConfiguration.h:
 ../App/Waveform/waveform.h:
-../Core/Inc/LumenProtocol.h:
 ../App/PrintWaveform/printWaveform.h:

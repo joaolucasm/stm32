@@ -32,7 +32,7 @@ void UartTransmit(void)
 //					lumen_write_packet(&voltagePhaseA);
 
 					//printf("%"PRId32"\n\r",receivedSample.value);
-					printf("%d\n\r",(int)receivedSample.value);
+					//printf("%d\n",(int)receivedSample.value);
 					break;
 				case 2:
 //					lumen_packet_t currentPhaseB = {address_currentPhaseB,kS32};
@@ -42,11 +42,12 @@ void UartTransmit(void)
 					//printf("IB: %"PRId32"\n\r",receivedSample.value);
 					break;
 				case 3:
-//					lumen_packet_t voltagePhaseB = {address_voltagePhaseB,kS32};
-//					voltagePhaseB.data._s32 = receivedSample.value;
-//					lumen_write_packet(&voltagePhaseB);
+					lumen_packet_t voltagePhaseB = {address_voltagePhaseB,kS32};
+					voltagePhaseB.data._s32 = receivedSample.value;
+					lumen_write_packet(&voltagePhaseB);
 
 					//printf("VB: %"PRId32"\n\r",receivedSample.value);
+					//printf("%d\n",(int)receivedSample.value);
 					break;
 				case 4:
 //					lumen_packet_t currentPhaseC = {address_currentPhaseC,kS32};
@@ -60,6 +61,7 @@ void UartTransmit(void)
 //					voltagePhaseC.data._s32 = receivedSample.value;
 //					lumen_write_packet(&voltagePhaseC);
 
+					//printf("%d\n",(int)receivedSample.value);
 					//printf("VC: %"PRId32"\n\r",receivedSample.value);
 					break;
 				default:

@@ -35,10 +35,9 @@ App/Support/supportFunctions.o: ../App/Support/supportFunctions.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- ../App/app_config.h ../App/Waveform/waveform.h \
+ ../App/app_config.h ../App/Waveform/waveform.h ../Core/Inc/main.h \
  ../Core/Inc/LumenProtocol.h ../Core/Inc/LumenProtocolConfiguration.h \
- ../Core/Inc/main.h ../Core/Inc/LumenProtocol.h \
- ../App/PrintWaveform/printWaveform.h
+ ../App/PrintWaveform/printWaveform.h ../Core/Inc/LumenProtocol.h
 ../App/Support/supportFunctions.h:
 ../App/enernet.h:
 ../App/ADE9000/Inc/ADE9000.h:
@@ -81,8 +80,8 @@ App/Support/supportFunctions.o: ../App/Support/supportFunctions.c \
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 ../App/app_config.h:
 ../App/Waveform/waveform.h:
-../Core/Inc/LumenProtocol.h:
-../Core/Inc/LumenProtocolConfiguration.h:
 ../Core/Inc/main.h:
 ../Core/Inc/LumenProtocol.h:
+../Core/Inc/LumenProtocolConfiguration.h:
 ../App/PrintWaveform/printWaveform.h:
+../Core/Inc/LumenProtocol.h:

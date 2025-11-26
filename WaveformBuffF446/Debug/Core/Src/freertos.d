@@ -45,7 +45,7 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
  ../App/ADE9000/Inc/ADE9000CAL.h ../App/app_config.h \
  ../App/Support/calibration.h ../Core/Inc/LumenProtocol.h \
  ../Core/Inc/LumenProtocolConfiguration.h ../App/Waveform/waveform.h \
- ../Core/Inc/LumenProtocol.h ../App/PrintWaveform/printWaveform.h
+ ../App/PrintWaveform/printWaveform.h
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h:
@@ -98,5 +98,4 @@ Core/Src/freertos.o: ../Core/Src/freertos.c \
 ../Core/Inc/LumenProtocol.h:
 ../Core/Inc/LumenProtocolConfiguration.h:
 ../App/Waveform/waveform.h:
-../Core/Inc/LumenProtocol.h:
 ../App/PrintWaveform/printWaveform.h:
