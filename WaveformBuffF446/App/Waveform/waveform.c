@@ -60,6 +60,7 @@ void Waveform_Main(void)
 		{
 			case WFB_STATE_INIT:
 				//osMutexAcquire(spiMutexHandle, osWaitForever);
+				//Teste
 				Reset_Internal_State();
 				Init_WFB();
 				currentState = WFB_STATE_STREAMING;
