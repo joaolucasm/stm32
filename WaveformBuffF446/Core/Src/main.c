@@ -48,7 +48,6 @@ DMA_HandleTypeDef hdma_spi1_tx;
 
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart6;
-DMA_HandleTypeDef hdma_usart6_tx;
 
 /* Definitions for enernetTask */
 osThreadId_t enernetTaskHandle;
@@ -207,7 +206,7 @@ int main(void)
 
   /* Create the queue(s) */
   /* creation of xWaveformQueue */
-  xWaveformQueueHandle = osMessageQueueNew (300, 8, &xWaveformQueue_attributes);
+  xWaveformQueueHandle = osMessageQueueNew (700, 8, &xWaveformQueue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -375,7 +374,6 @@ static void MX_USART6_UART_Init(void)
   /* USER CODE END USART6_Init 0 */
 
   /* USER CODE BEGIN USART6_Init 1 */
-  huart6.hdmatx = &hdma_usart6_tx;
   /* USER CODE END USART6_Init 1 */
   huart6.Instance = USART6;
   huart6.Init.BaudRate = 115200;
@@ -411,9 +409,6 @@ static void MX_DMA_Init(void)
   /* DMA2_Stream3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
-  /* DMA2_Stream6_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Stream6_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Stream6_IRQn);
 
 }
 
@@ -478,9 +473,7 @@ void StartEnernetTask(void *argument)
   ADE9000_Init();
   for(;;)
   {
-	//App_loop();
-	//ADE9000_Trigger_Detector();
-    mainPrint_Waveform();
+	Waveform_Main();
     osDelay(1);
   }
   /* USER CODE END 5 */

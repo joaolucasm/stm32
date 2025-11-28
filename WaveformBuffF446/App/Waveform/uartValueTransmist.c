@@ -27,9 +27,9 @@ void UartTransmit(void)
 //					printf("IA: %"PRId32"\n\r",receivedSample.value);
 					break;
 				case 1:
-//					lumen_packet_t voltagePhaseA = {address_voltagePhaseA,kS32};
-//					voltagePhaseA.data._s32 = receivedSample.value;
-//					lumen_write_packet(&voltagePhaseA);
+					lumen_packet_t voltagePhaseA = {address_voltagePhaseA,kS32};
+					voltagePhaseA.data._s32 = receivedSample.value;
+					lumen_write_packet(&voltagePhaseA);
 
 					//printf("%"PRId32"\n\r",receivedSample.value);
 					//printf("%d\n",(int)receivedSample.value);
@@ -42,9 +42,9 @@ void UartTransmit(void)
 					//printf("IB: %"PRId32"\n\r",receivedSample.value);
 					break;
 				case 3:
-					lumen_packet_t voltagePhaseB = {address_voltagePhaseB,kS32};
-					voltagePhaseB.data._s32 = receivedSample.value;
-					lumen_write_packet(&voltagePhaseB);
+					//lumen_packet_t voltagePhaseB = {address_voltagePhaseB,kS32};
+					//voltagePhaseB.data._s32 = receivedSample.value;
+					//lumen_write_packet(&voltagePhaseB);
 
 					//printf("VB: %"PRId32"\n\r",receivedSample.value);
 					//printf("%d\n",(int)receivedSample.value);

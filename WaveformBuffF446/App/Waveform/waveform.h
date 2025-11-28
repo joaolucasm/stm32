@@ -11,17 +11,13 @@
 #include "calibration.h"
 #include "ADE9000.h"
 #include "main.h"
+
 //================================================================================================================================================
 //
 //																	Defines
 //
 //================================================================================================================================================
 
-#define PAGE_WORDS     						128     					/*Tamanho da página dentro do waveform buffer*/
-#define TOTAL_16BIT_WORDS					(PAGE_WORDS * 2)			/*Quantidade de meias palavras dentro de uma página*/
-#define TOTAL_SAMPLES						256
-#define BUFFER_TAM							2048						/*Tamanho total do waveform buffer*/
-#define TOTAL_16BIT_BUFFER					(BUFFER_TAM * 2)			/*Tamanho total do buffer em 16 bits*/
 #define DSP_FS_DECIMAL 						74532013.0
 #define PIN_FS_VOLTAGE						1.0
 #define FATOR_DIVISOR_TENSAO				801.0
@@ -44,13 +40,11 @@
 #define ADDR_WFB_BASE						0x00000800		 			/*Start of Waveform Buffer*/
 #define ADDR_WFB_TOP						0x00000FFF					/*End of Waveform Buffer*/
 
-// 1. Buffer de Transporte (DMA)
-#define DMA_SAMPLE_SETS						64                          /*Leitura de 64 amostras do ADE por vez*/
-#define DMA_CHANNELS_SPI					8							/*Canais para leitura (IA,VA,IB,VB,IC,VC,IN,Spare)*/
-#define DMA_BUFFER_SIZE_16_BITS				(DMA_SAMPLE_SETS * DMA_CHANNELS_SPI * 2) /*Tamanho do buffer que vai comportar os dados que serão trazidos do ADE, multiplicado por 2 pois será de 16 bits*/
+#define DMA_SAMPLE_SETS						128                         /*Leitura de 64 amostras do ADE por vez*/
+#define DMA_WORDS_PER_SAMPLE				14							/*Canais para leitura 7 canais * High/Low parts*/
+#define DMA_BUFFER_SIZE_16_BITS				(DMA_SAMPLE_SETS * DMA_WORDS_PER_SAMPLE * 2) /*Tamanho do buffer que vai comportar os dados que serão trazidos do ADE, multiplicado por 2 pois será de 16 bits*/
 
-// 2. Decimação
-#define DECIMATION_FACTOR					6							/*Para pegar 500ms de onda com 20Kbytes, onde faremos 8000Hz / 6 = 1333.33Hz*/
+#define DECIMATION_FACTOR					8							/*Para pegar 500ms de onda com 20Kbytes, onde faremos 8000Hz / 8 = 1000Hz*/
 
 // 3. Buffer Circular de Histórico (RAM STM32)
 // RAM Usada: 700 * 28 bytes = 19.600 bytes (~19.1 KB)
@@ -58,10 +52,16 @@
 #define HISTORY_BUFFER_SIZE					700
 #define HISTORY_CHANNELS					7							/*IA,VA,IB,VB,IC,VC,IN*/
 
+#define FLAG_CAPTURE_COMPLETE				0x01						//Flag para acordar a task
 
+//#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
+//#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO  * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
 
-#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
-#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO  * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
+#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE) / DSP_FS_DECIMAL)
+#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO) / DSP_FS_DECIMAL)
+
+#define FACTOR_I_DECIMADO  			(float)	FACTOR_I / DECIMATION_FACTOR
+#define FACTOR_V_DECIMADO  			(float)	FACTOR_V / DECIMATION_FACTOR
 
 #define ADE_GET_VALUE(ade_union) \
 	( (int32_t)( ((uint32_t)(ade_union).parts.High << 16) | (ade_union).parts.Low ) )
@@ -77,13 +77,14 @@ typedef enum{
 	SPI_STATE_READING_FULL_BUFFER			//SPI está ocuádo lendo o buffer inteiro
 }SpiDMAReadState_t;
 
-typedef enum {
-	STATE_IDLE,								//1. Esperando por um gatilho
-	STATE_WAITING_FOR_DMA,					//2. Gatilho recebido, esperando DMA
-	STATE_PROCESSING,						//3. DMA completo, processando dados
-	STATE_CHECK_STATUS,						//4. Recebeu uma interrupção, tratando o que causou ela
-	STATE_INIT
-}DetectorState_t;
+
+typedef enum{
+	WFB_STATE_INIT,							//Iniciação do ADE9000 e do DMA
+	WFB_STATE_STREAMING,					//Estado passivo: DMA fica preenchendo o buffer, aguardando um trigger
+	WFB_STATE_POST_TRIGGER,					//(Gerenciado na ISR) Capturando o final da onda
+	WFB_STATE_PROCESSING,					//DMA parado. Extraindo dados e enviando para a fila
+	WFB_STATE_RESTART						//Limpa buffers e reinicia o processo
+}WaveformState_t;
 
 typedef struct{
 	int32_t value;
@@ -91,15 +92,22 @@ typedef struct{
 }WaveformSample_t;
 
 #pragma pack(push,1)
+typedef union {
+    struct {
+        uint16_t High;
+        uint16_t Low;
+    } parts;
+    int32_t val; // Não usaremos .val diretamente para evitar problemas de endianness
+} ade_wfb_sample;
+
 typedef struct{
-	int32_t IA;
-	int32_t VA;
-	int32_t IB;
-	int32_t VB;
-	int32_t IC;
-	int32_t VC;
-	int32_t IN;
-	int32_t Spare;
+	ade_wfb_sample IA;
+	ade_wfb_sample VA;
+	ade_wfb_sample IB;
+	ade_wfb_sample VB;
+	ade_wfb_sample IC;
+	ade_wfb_sample VC;
+	ade_wfb_sample IN;
 }AdeRawSample_t;
 #pragma pack(pop)
 
@@ -113,26 +121,16 @@ typedef struct{
 	int32_t IN;
 }ProcessedSample_t;
 
-extern uint16_t dma_rx_buffer[DMA_BUFFER_SIZE_16_BITS];
-
-extern ProcessedSample_t history_buffer[HISTORY_BUFFER_SIZE];
-
-extern volatile uint16_t history_head;
-
-extern volatile bool flag_dma_half;
-extern volatile bool flag_dma_cplt;
-
 //================================================================================================================================================
 //
 //													Definições das funções utilizadas
 //
 //================================================================================================================================================
-void ADE9000_Init_WFB();
-void ADE9000_Trigger_Detector();
-void Waveform_Process_Loop(void);
-
-
-
+void Init_WFB(void);
+void Restart_WFB(void);
+void Waveform_Main(void);
+void Waveform_Process_Chunk(uint16_t start_index,uint16_t count);
+uint16_t Analise_Interrupcao(void);
 void UartTransmit(void);
 
 #endif

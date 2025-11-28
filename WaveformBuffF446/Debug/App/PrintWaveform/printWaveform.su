@@ -1,3 +1,1 @@
-../App/PrintWaveform/printWaveform.c:9:6:mainPrint_Waveform	16	static
-../App/PrintWaveform/printWaveform.c:47:6:getWaveformPrint	64	static
-../App/PrintWaveform/printWaveform.c:89:6:getRealValues	56	static
+../App/PrintWaveform/printWaveform.c:8:6:mainPrint_Waveform	16	static

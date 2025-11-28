@@ -1,4 +1,10 @@
-../App/Waveform/waveform.c:17:6:ADE9000_Trigger_Detector	24	static
-../App/Waveform/waveform.c:86:6:ADE9000_Init_WFB	8	static
-../App/Waveform/waveform.c:108:6:HAL_GPIO_EXTI_Callback	24	static
-../App/Waveform/waveform.c:126:6:HAL_SPI_TxRxCpltCallback	16	static
+../App/Waveform/waveform.c:25:13:Waveform_Extract_Send	24	static
+../App/Waveform/waveform.c:44:13:Reset_Internal_State	8	static
+../App/Waveform/waveform.c:55:6:Waveform_Main	16	static
+../App/Waveform/waveform.c:94:10:Analise_Interrupcao	24	static
+../App/Waveform/waveform.c:119:6:Init_WFB	8	static
+../App/Waveform/waveform.c:132:6:Restart_WFB	8	static
+../App/Waveform/waveform.c:144:6:Waveform_Process_Chunk	24	static
+../App/Waveform/waveform.c:212:6:HAL_GPIO_EXTI_Callback	16	static
+../App/Waveform/waveform.c:224:6:HAL_SPI_TxRxHalfCpltCallback	16	static
+../App/Waveform/waveform.c:233:6:HAL_SPI_TxRxCpltCallback	16	static

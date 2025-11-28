@@ -20,6 +20,15 @@ uint16_t ADE9000SPI_Read16(uint16_t Address);
 uint32_t ADE9000SPI_Read32(uint16_t Address);
 void ADE9000SPI_BurstRead_DMA(uint16_t startAddr, int nWords,uint16_t *dma_rx_buffer);
 
+// Funções Unsafe (Para uso interno na Task Waveform com Mutex já pego)
+void ADE9000SPI_Write16_Unsafe(uint16_t Address, uint16_t Data);
+void ADE9000SPI_Write32_Unsafe(uint16_t Address , uint32_t Data );
+uint16_t ADE9000SPI_Read16_Unsafe(uint16_t Address);
+uint32_t ADE9000SPI_Read32_Unsafe(uint16_t Address);
+
+// Função de Streaming
+void ADE9000SPI_BurstRead_DMA_Start(uint16_t startAddr, int nWords, uint16_t *rx_buffer);
+
 #ifdef __cplusplus
 }
 #endif
