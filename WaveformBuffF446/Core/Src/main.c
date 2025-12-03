@@ -63,6 +63,13 @@ const osThreadAttr_t uartTransmitTas_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityBelowNormal,
 };
+/* Definitions for printWaveform */
+osThreadId_t printWaveformHandle;
+const osThreadAttr_t printWaveform_attributes = {
+  .name = "printWaveform",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityBelowNormal,
+};
 /* Definitions for xWaveformQueue */
 osMessageQueueId_t xWaveformQueueHandle;
 const osMessageQueueAttr_t xWaveformQueue_attributes = {
@@ -88,6 +95,7 @@ static void MX_SPI1_Init(void);
 static void MX_USART6_UART_Init(void);
 void StartEnernetTask(void *argument);
 void StartUartTransmitTask(void *argument);
+void printWaveformTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -218,6 +226,9 @@ int main(void)
 
   /* creation of uartTransmitTas */
   uartTransmitTasHandle = osThreadNew(StartUartTransmitTask, NULL, &uartTransmitTas_attributes);
+
+  /* creation of printWaveform */
+  printWaveformHandle = osThreadNew(printWaveformTask, NULL, &printWaveform_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -431,20 +442,20 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LED_Pin|CS_SPI1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_Pin CS_SPI1_Pin */
-  GPIO_InitStruct.Pin = LED_Pin|CS_SPI1_Pin;
+  /*Configure GPIO pins : IRQ1_ADE_Pin IRQ0_ADE_Pin */
+  GPIO_InitStruct.Pin = IRQ1_ADE_Pin|IRQ0_ADE_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : CS_SPI1_Pin */
+  GPIO_InitStruct.Pin = CS_SPI1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : IRQ0_ADE_Pin */
-  GPIO_InitStruct.Pin = IRQ0_ADE_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(IRQ0_ADE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(CS_SPI1_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
@@ -496,6 +507,25 @@ void StartUartTransmitTask(void *argument)
     osDelay(1);
   }
   /* USER CODE END StartUartTransmitTask */
+}
+
+/* USER CODE BEGIN Header_printWaveformTask */
+/**
+* @brief Function implementing the printWaveform thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_printWaveformTask */
+void printWaveformTask(void *argument)
+{
+  /* USER CODE BEGIN printWaveformTask */
+  /* Infinite loop */
+  for(;;)
+  {
+	mainPrint_Waveform();
+    osDelay(1);
+  }
+  /* USER CODE END printWaveformTask */
 }
 
 /**

@@ -19,20 +19,22 @@ extern "C" {
 #define ADE9000_ACCMODE 					0x0100			/*Opera��o a 60 Hz, 3 fases e 4 fios, acumula��o de energia com sinal (energia pode ser negativa)*/
 #define ADE9000_TEMP_CFG 					0x0000			/*Sensor de temperatura habilitado*/
 #define ADE9000_ZX_LP_SEL 					0x001E			/*Periodo e cruzamento obtidos pelos sinais combinados VA, VB e VC*/
-#define ADE9000_MASK0 						0x00010000		/*Habilita interrupcao de PAGE_FULL e WFB_TRIG_IRQ*/
-#define ADE9000_MASK1						0x00000000		/*Não habilito nenhuma interrupção para ocorrer em IRQ1, controlando tudo apenas por IRQ0*/
+#define ADE9000_MASK0 						0x00010000		/*Habilita interrupcao de WFB_TRIG_IRQ*/
+#define ADE9000_MASK1						0x000001C0		/*Habilita interrupcao de ZXTOVA, ZXTOVB e ZXTOVC*/
 #define ADE9000_EVENT_MASK 					0x00000000		/*Eventos desabilitados*/
 #define ADE9000_VLEVEL						0x001637EB		/*Assume-se que Vnom = 1/2 da escala cheia*/
 #define ADE9000_EGY_TIME 					0x1F3F 			/*Acumula 1 amostras, 1/8000 segundo de acumula��o*/
 #define ADE9000_EP_CFG 						0xC021			/*Habilita o acumulador de energia, sempre que a interrup��o EGYRDY � acionada o registrador interno de energia adiciona-se ao registrador do usu�rio, o modo sem carga � acionado com 4096 samples, tempo m�ximo de acumula��o � 106 seg*/
-#define ADE9000_WFB_CFG_CONFIGURATION 		0x13E0			/*Modo burst da waveform habilitada em todos os canais, captura desabilitada, fixed data rate data, continuous filling(10), Waveforms Processed by the DSP source, IN disable*/
+#define ADE9000_WFB_CFG_CONFIGURATION 		0x13E0			/*Modo burst da waveform habilitada em todos os canais, captura desabilitada, fixed data rate data, continuous fill(11), Waveforms Processed by the DSP source, IN enable*/
 #define ADE9000_WFB_CFG_STOP 				0x13E0			/*Mesma coisa que o configuration, apenas para poder resetar a captura de dados do WFB*/
 #define ADE9000_WFB_CFG_START 				0x13F0			/*Habilitando a leitura de preenchimento do waveform Buffer*/
 #define ADE9000_WFB_TRG_CFG					0x0007			/*Habilita o trigger do buffer para quando ocorrer SWELL, DIP ou OI em qualquer fase*/
 #define ADE9000_WFB_PQ_IRQEN				0x0080			/*Habilita a interrupcao quando a ultima página do buffer encher*/
+#define ADE9000_ZXTOUT						0x0320			/*800 decimal = 0x0320. Configura timeout para 100ms (800 / 8000 = 0.1s)*/
 
 // Limites do modulo de qualidade
-#define DIP_LVL					0x0000EE62					/*N�vel inferior de tens�o que caracteriza DIP (21V rms)*/
+//#define DIP_LVL					0x0000EE62					/*N�vel inferior de tens�o que caracteriza DIP (21V rms)*/
+#define DIP_LVL					0x00000000
 #define DIP_CYC					0x000A						/*N�mero m�nimo de ciclos para caracterizar DIP*/
 #define SWELL_LVL				0x0001BAB5					/*N�vel superior de tens�o que caracteriza SWELL (39V rms)*/
 #define SWELL_CYC				0x000A						/*N�mero m�nimo de ciclos para caracterizar SWELL*/

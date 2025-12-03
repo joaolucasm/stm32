@@ -23,7 +23,6 @@ C_DEPS :=
 # Every subdirectory with source files must be described here
 SUBDIRS := \
 App/ADE9000/Src \
-App/PrintWaveform \
 App/Support \
 App/Waveform \
 App \

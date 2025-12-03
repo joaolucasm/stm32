@@ -36,7 +36,7 @@ App/Waveform/waveform.o: ../App/Waveform/waveform.c \
  ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  ../Core/Inc/main.h ../App/enernet.h ../App/app_config.h \
  ../Core/Inc/LumenProtocol.h ../Core/Inc/LumenProtocolConfiguration.h \
- ../App/Waveform/waveform.h ../App/PrintWaveform/printWaveform.h
+ ../App/Waveform/waveform.h
 ../App/Waveform/waveform.h:
 ../App/Support/calibration.h:
 ../App/ADE9000/Inc/ADE9000.h:
@@ -81,4 +81,3 @@ App/Waveform/waveform.o: ../App/Waveform/waveform.c \
 ../Core/Inc/LumenProtocol.h:
 ../Core/Inc/LumenProtocolConfiguration.h:
 ../App/Waveform/waveform.h:
-../App/PrintWaveform/printWaveform.h:

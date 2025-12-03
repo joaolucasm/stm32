@@ -35,8 +35,7 @@ Core/Src/stm32f4xx_hal_msp.o: ../Core/Src/stm32f4xx_hal_msp.c \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../App/ADE9000/Inc/ADE9000CAL.h ../App/app_config.h \
  ../App/Support/calibration.h ../Core/Inc/LumenProtocol.h \
- ../Core/Inc/LumenProtocolConfiguration.h ../App/Waveform/waveform.h \
- ../App/PrintWaveform/printWaveform.h
+ ../Core/Inc/LumenProtocolConfiguration.h ../App/Waveform/waveform.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 ../Core/Inc/stm32f4xx_hal_conf.h:
@@ -80,4 +79,3 @@ Core/Src/stm32f4xx_hal_msp.o: ../Core/Src/stm32f4xx_hal_msp.c \
 ../Core/Inc/LumenProtocol.h:
 ../Core/Inc/LumenProtocolConfiguration.h:
 ../App/Waveform/waveform.h:
-../App/PrintWaveform/printWaveform.h:

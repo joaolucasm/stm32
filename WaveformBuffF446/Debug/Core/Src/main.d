@@ -36,7 +36,6 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../App/ADE9000/Inc/ADE9000CAL.h ../App/app_config.h \
  ../App/Support/calibration.h ../Core/Inc/LumenProtocol.h \
  ../Core/Inc/LumenProtocolConfiguration.h ../App/Waveform/waveform.h \
- ../App/PrintWaveform/printWaveform.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h \
  ../Core/Inc/FreeRTOSConfig.h \
@@ -91,7 +90,6 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/LumenProtocol.h:
 ../Core/Inc/LumenProtocolConfiguration.h:
 ../App/Waveform/waveform.h:
-../App/PrintWaveform/printWaveform.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:
 ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h:
 ../Core/Inc/FreeRTOSConfig.h:

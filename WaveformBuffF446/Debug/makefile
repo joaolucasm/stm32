@@ -18,7 +18,6 @@ RM := rm -rf
 -include Core/Src/subdir.mk
 -include App/Waveform/subdir.mk
 -include App/Support/subdir.mk
--include App/PrintWaveform/subdir.mk
 -include App/ADE9000/Src/subdir.mk
 -include App/subdir.mk
 -include objects.mk

@@ -28,12 +28,17 @@
 #define OISTATUS_IA_BIT						(1 << 0)					/*Bit de indicando a fase A no registrador oistatus*/
 #define OISTATUS_IB_BIT						(1 << 1)					/*Bit de indicando a fase B no registrador oistatus*/
 #define OISTATUS_IC_BIT						(1 << 2)					/*Bit de indicando a fase C no registrador oistatus*/
-#define STATUS1_SWELLA_BIT					(1 << 20)					/*Bit de SWELL no channel A no registrador status1*/
-#define STATUS1_SWELLB_BIT					(1 << 21)					/*Bit de SWELL no channel B no registrador status1*/
-#define STATUS1_SWELLC_BIT					(1 << 22)					/*Bit de SWELL no channel C no registrador status1*/
-#define STATUS1_DIPA_BIT					(1 << 23)					/*Bit de DIP no channel A no registrador status1*/
-#define STATUS1_DIPB_BIT					(1 << 24)					/*Bit de DIP no channel B no registrador status1*/
-#define STATUS1_DIPC_BIT					(1 << 25)					/*Bit de DIP no channel C no registrador status1*/
+#define STATUS1_SWELLA_BIT					(1 << 20)					/*Bit de SWELL no canal A no registrador status1*/
+#define STATUS1_SWELLB_BIT					(1 << 21)					/*Bit de SWELL no canal B no registrador status1*/
+#define STATUS1_SWELLC_BIT					(1 << 22)					/*Bit de SWELL no canal C no registrador status1*/
+#define STATUS1_DIPA_BIT					(1 << 23)					/*Bit de DIP no canal A no registrador status1*/
+#define STATUS1_DIPB_BIT					(1 << 24)					/*Bit de DIP no canal B no registrador status1*/
+#define STATUS1_DIPC_BIT					(1 << 25)					/*Bit de DIP no canal C no registrador status1*/
+#define STATUS1_ZXTOVA_BIT 					(1 << 6)					/*Bit de zero crossing timeout no canal A no registrador status1*/
+#define STATUS1_ZXTOVB_BIT 					(1 << 7)					/*Bit de zero crossing timeout no canal B no registrador status1*/
+#define STATUS1_ZXTOVC_BIT 					(1 << 8)					/*Bit de zero crossing timeout no canal C no registrador status1*/
+
+
 #define STATUS0_PAGE_FULL					(1 << 17)					/*Bit de status0 que avisa se uma página está cheia*/
 #define STATUS0_WFB_TRIG_IRQ				(1 << 16)					/*Bit de status0 que avisa a parada do buffer*/
 
@@ -45,23 +50,28 @@
 #define DMA_BUFFER_SIZE_16_BITS				(DMA_SAMPLE_SETS * DMA_WORDS_PER_SAMPLE * 2) /*Tamanho do buffer que vai comportar os dados que serão trazidos do ADE, multiplicado por 2 pois será de 16 bits*/
 
 #define DECIMATION_FACTOR					8							/*Para pegar 500ms de onda com 20Kbytes, onde faremos 8000Hz / 8 = 1000Hz*/
+#define DECIMATION_FACTOR_PRINT				4
 
 // 3. Buffer Circular de Histórico (RAM STM32)
 // RAM Usada: 700 * 28 bytes = 19.600 bytes (~19.1 KB)
 // Tempo Total: 700 / 1333.33 = ~525 ms
 #define HISTORY_BUFFER_SIZE					700
 #define HISTORY_CHANNELS					7							/*IA,VA,IB,VB,IC,VC,IN*/
+#define PRINT_BUFFER_SIZE					100
 
 #define FLAG_CAPTURE_COMPLETE				0x01						//Flag para acordar a task
 
-//#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
-//#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO  * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
+#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
+#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO  * SCALE_TO_MILLI_UNITS) / DSP_FS_DECIMAL)
 
-#define FACTOR_I (float)((PIN_FS_VOLTAGE * FATOR_DIVISOR_CORRENTE) / DSP_FS_DECIMAL)
-#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO) / DSP_FS_DECIMAL)
+//#define FACTOR_I (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_CORRENTE) / DSP_FS_DECIMAL)
+//#define FACTOR_V (float)((PIN_FS_VOLTAGE *  FATOR_DIVISOR_TENSAO) / DSP_FS_DECIMAL)
 
-#define FACTOR_I_DECIMADO  			(float)	FACTOR_I / DECIMATION_FACTOR
-#define FACTOR_V_DECIMADO  			(float)	FACTOR_V / DECIMATION_FACTOR
+#define FACTOR_I_DECIMADO  			(float)	(FACTOR_I / DECIMATION_FACTOR)
+#define FACTOR_V_DECIMADO  			(float)	(FACTOR_V / DECIMATION_FACTOR)
+#define FACTOR_I_DECIMADO_PRINT  	(float)	(FACTOR_I / DECIMATION_FACTOR_PRINT)
+#define FACTOR_V_DECIMADO_PRINT  	(float)	(FACTOR_V / DECIMATION_FACTOR_PRINT)
+
 
 #define ADE_GET_VALUE(ade_union) \
 	( (int32_t)( ((uint32_t)(ade_union).parts.High << 16) | (ade_union).parts.Low ) )
@@ -131,6 +141,8 @@ void Restart_WFB(void);
 void Waveform_Main(void);
 void Waveform_Process_Chunk(uint16_t start_index,uint16_t count);
 uint16_t Analise_Interrupcao(void);
+void Reset_Internal_State(void);
+void mainPrint_Waveform();
 void UartTransmit(void);
 
 #endif

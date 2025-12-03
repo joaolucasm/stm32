@@ -69,7 +69,6 @@
 									<listOptionValue builtIn="false" value="../App/ADE9000/Src"/>
 									<listOptionValue builtIn="false" value="../App/Waveform"/>
 									<listOptionValue builtIn="false" value="../App/Support"/>
-									<listOptionValue builtIn="false" value="../App/PrintWaveform"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.2021877014" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>

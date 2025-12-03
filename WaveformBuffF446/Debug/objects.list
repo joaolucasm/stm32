@@ -1,7 +1,6 @@
 "./App/ADE9000/Src/ADE9000.o"
 "./App/ADE9000/Src/ADE9000API.o"
 "./App/ADE9000/Src/ADE9000SPI.o"
-"./App/PrintWaveform/printWaveform.o"
 "./App/Support/calibration.o"
 "./App/Support/supportFunctions.o"
 "./App/Waveform/uartValueTransmist.o"

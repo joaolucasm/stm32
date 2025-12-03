@@ -36,7 +36,7 @@ App/ADE9000/Src/ADE9000SPI.o: ../App/ADE9000/Src/ADE9000SPI.c \
  ../App/ADE9000/Inc/ADE9000SPI.h ../App/ADE9000/Inc/ADE9000CAL.h \
  ../App/app_config.h ../App/Support/calibration.h \
  ../Core/Inc/LumenProtocol.h ../Core/Inc/LumenProtocolConfiguration.h \
- ../App/Waveform/waveform.h ../App/PrintWaveform/printWaveform.h
+ ../App/Waveform/waveform.h
 ../App/ADE9000/Inc/ADE9000SPI.h:
 ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f446xx.h:
 ../Drivers/CMSIS/Include/core_cm4.h:
@@ -81,4 +81,3 @@ App/ADE9000/Src/ADE9000SPI.o: ../App/ADE9000/Src/ADE9000SPI.c \
 ../Core/Inc/LumenProtocol.h:
 ../Core/Inc/LumenProtocolConfiguration.h:
 ../App/Waveform/waveform.h:
-../App/PrintWaveform/printWaveform.h:
