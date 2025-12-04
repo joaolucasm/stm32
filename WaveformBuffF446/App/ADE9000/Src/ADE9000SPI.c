@@ -89,7 +89,7 @@ uint32_t ADE9000SPI_Read32_Unsafe(uint16_t Address)
 
 void ADE9000SPI_Write16(uint16_t Address, uint16_t Data)
 {
-	osMutexAcquire(spiMutexHandle, osWaitForever);
+	//osMutexAcquire(spiMutexHandle, osWaitForever);
 
 	Address = ((Address << 4) & 0xFFF0);
 
@@ -102,12 +102,12 @@ void ADE9000SPI_Write16(uint16_t Address, uint16_t Data)
 
 	HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_SET);
 
-	osMutexRelease(spiMutexHandle);
+	//osMutexRelease(spiMutexHandle);
 }
 
 void ADE9000SPI_Write32(uint16_t Address , uint32_t Data )
 {
-	osMutexAcquire(spiMutexHandle, osWaitForever);
+	//osMutexAcquire(spiMutexHandle, osWaitForever);
 
 	Address = ((Address << 4) & 0xFFF0);
 
@@ -126,14 +126,14 @@ void ADE9000SPI_Write32(uint16_t Address , uint32_t Data )
 
 	HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_SET);
 
-	osMutexRelease(spiMutexHandle);
+	//osMutexRelease(spiMutexHandle);
 }
 
 uint16_t ADE9000SPI_Read16(uint16_t Address)
 {
 	uint16_t returnData = 0;
 
-	osMutexAcquire(spiMutexHandle, osWaitForever);
+	//osMutexAcquire(spiMutexHandle, osWaitForever);
 
 	Address = (((Address << 4) & 0xFFF0) + 8);
 
@@ -148,7 +148,7 @@ uint16_t ADE9000SPI_Read16(uint16_t Address)
 
 	HAL_GPIO_WritePin(CS_SPI1_GPIO_Port, CS_SPI1_Pin, GPIO_PIN_SET);
 
-	osMutexRelease(spiMutexHandle);
+	//osMutexRelease(spiMutexHandle);
 	return returnData;
 }
 
@@ -157,7 +157,7 @@ uint32_t ADE9000SPI_Read32(uint16_t Address)
 
 	uint32_t returnData = 0;
 
-	osMutexAcquire(spiMutexHandle, osWaitForever);
+	//osMutexAcquire(spiMutexHandle, osWaitForever);
 
 	Address = (((Address << 4) & 0xFFF0) + 8);
 
@@ -178,7 +178,7 @@ uint32_t ADE9000SPI_Read32(uint16_t Address)
 
 	returnData = ((uint32_t)temp_highpacket << 16) | temp_lowpacket;
 
-	osMutexRelease(spiMutexHandle);
+	//osMutexRelease(spiMutexHandle);
 	return returnData;
 }
 

@@ -3,25 +3,7 @@
 
 extern UART_HandleTypeDef huart2;
 /* ------------------------------------ Código ------------------------------------- */
-/*
-void FSP_Nominal(struct calibracao_nominal valores,FSP_t *fsp)
-{
-	fsp->CTF = (valores.resistorBurderTC / valores.relacaoTC);
-	fsp->VTF = (valores.resistorBurderTensao / valores.resistorLimitadorTensao);
 
-	fsp->I_FSP_Nominal = ((fsp->CTF * valores.correnteNominal) / 0.707);
-	fsp->V_FSP_Nominal = ((fsp->VTF * valores.tensaoNominal) / 0.707);
-}
-
-void FSP_Offset(struct calibracao_offset valores,FSP_t *fsp)
-{
-	fsp->CTF = (valores.resistorBurderTC  / valores.relacaoTC);
-	fsp->VTF = (valores.resistorBurderTensao / valores.resistorLimitadorTensao);
-
-	fsp->I_FSP_Offset = ((fsp->CTF * valores.correnteOffset) / 0.707);
-	fsp->V_FSP_Offset = ((fsp->VTF * valores.tensaoOffset) / 0.707);
-}
-*/
 //==================================================================================================================================================
 //
 //		 													Função utilizada para calcular o valor RMS de corrente

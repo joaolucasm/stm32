@@ -11,7 +11,6 @@ void UartTransmit(void)
 {
 	WaveformSample_t receivedSample;
 	osStatus_t status;
-
 	while(1)
 	{
 		status = osMessageQueueGet(xWaveformQueueHandle,&receivedSample,NULL,osWaitForever);

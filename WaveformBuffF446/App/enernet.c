@@ -54,11 +54,6 @@ bool stateMachine(void)
 	{
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 		case STATE_APP_INICIA_VARIAVEIS_E_CARREGAMENTOS:
-
-			//d_StateMachineApp.AppStatusRegister0 = 0; //zera outros estados
-			//d_StateMachineApp.AppStatusRegister1 = (d_StateMachineApp.AppStatusRegister1 & 254);//limpa estado bit 0
-			//d_StateMachineApp.AppStatusRegister1 = (d_StateMachineApp.AppStatusRegister1 | 2);//indica o atual estado
-
 			//INICIALIZACOES DAs VARIAVEIS DA APLICACAO EM GERAL:
 			AppMainBuild_General_InitiateVarStateMachine(&d_StateMachineApp);
 
@@ -77,24 +72,15 @@ bool stateMachine(void)
 		break;
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 		case STATE_APP_INICIA_CONEXOES:
-			//d_StateMachineApp.AppStatusRegister0 = 1; //indica o atual estado
-			//d_StateMachineApp.AppStatusRegister1 = (d_StateMachineApp.AppStatusRegister1 & 252);//indica o atual estado
 
 			//INICIAR CONEXAO COM HARDWARE DE TERCEIROS: futuramente incluir aqui uma funcao de identificacao de qual hardware esta conectado a ele
 			AppMainBuild_AppEnernet_HardwareInitiate(&d_StateMachineApp); //inicialização do hardware ADE
-
-			//if(d_StateMachineApp.ConnectedElectricMeterInterface) //se conexao com hardware principal de medicao esta ok  (1= SUCESSO  0=FALHA).
-				//d_StateMachineApp.AppStatusRegister2 = d_StateMachineApp.AppStatusRegister2 | 1; //seta o bit 0 de indicacao da conexao fisica com o hardware de terceiros
-			//else
-				//d_StateMachineApp.AppStatusRegister2 = d_StateMachineApp.AppStatusRegister2 & 254; //nao foi conectado com sucesso
 
 			d_StateMachineApp.State = STATE_APP_EM_EXECUCAO; //vai para execução, esperando que tenha dado certo a conexão com o hardware de terceiros
 
 		break;
 //-----------------------------------------------------------------------------------------------------------------------------------------------
 		case STATE_APP_EM_EXECUCAO:
-			//d_StateMachineApp.AppStatusRegister0 = 8; //indica o atual estado
-			//d_StateMachineApp.AppStatusRegister1 = (d_StateMachineApp.AppStatusRegister1 & 252);//zera outros estados (dois primeiros bits)
 
 			AppMainBuild_General_AppRunning(&d_StateMachineApp);  //uma das principais funcoes da aplicacao esta aqui .... 99% do tempo ela fica rodando
 

@@ -33,8 +33,8 @@ extern "C" {
 #define ADE9000_ZXTOUT						0x0320			/*800 decimal = 0x0320. Configura timeout para 100ms (800 / 8000 = 0.1s)*/
 
 // Limites do modulo de qualidade
-//#define DIP_LVL					0x0000EE62					/*N�vel inferior de tens�o que caracteriza DIP (21V rms)*/
-#define DIP_LVL					0x00000000
+#define DIP_LVL					0x0000EE62					/*N�vel inferior de tens�o que caracteriza DIP (21V rms)*/
+//#define DIP_LVL					0x00000000
 #define DIP_CYC					0x000A						/*N�mero m�nimo de ciclos para caracterizar DIP*/
 #define SWELL_LVL				0x0001BAB5					/*N�vel superior de tens�o que caracteriza SWELL (39V rms)*/
 #define SWELL_CYC				0x000A						/*N�mero m�nimo de ciclos para caracterizar SWELL*/
